@@ -1,27 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import NodeGraph from './NodeGraph';
 
 function App() {
-    const [currentTime, setCurrentTime] = useState(0);    
-    useEffect(() => {
-        fetch('/time').then(res => res.json()).then(data => {
-            setCurrentTime(data.time);
-        });
-    }, 
-    []  // <- This is to make sure that the effect has no dependencies
-        // and thus will not be called everytime there is a change
-        // to some state variable
-    );
+//     const [currentTime, setCurrentTime] = useState(0);    
+//     useEffect(() => {
+//             fetch('/time').then(res => res.json()).then(data => {
+//                 setCurrentTime(data.time);
+//             });
+//         }, 
+//         []  // <- This is to make sure that the effect has no dependencies
+//             // and thus will not be called everytime there is a change
+//             // to some state variable
+//     );
     
     
     const [kernelInfo, setKernelInfo] = useState({})
     useEffect(() => {
-        fetch('/ipyclient/connect').then(res => res.json()).then(data => {
-            setKernelInfo(data);
-        });
-    },
-    []
+            fetch('/ipyclient/connect').then(res => res.json()).then(data => {
+                setKernelInfo(data);
+            });
+        },
+        []
     );
     
     const [expr, setExpr] = useState('')
@@ -59,14 +60,9 @@ function App() {
             <p className="PlainText">{kernelInfo.banner}</p>
         </header>
         
-        
-        <p>Current Time is {currentTime}</p>
-        
-        
-        <input type="text" onChange={handleInput}></input>
-        <button onClick={executeStatement}>Evaluate</button>
-        
         <p className="PlainText">{execResult}</p>
+        
+        <NodeGraph />
         
     </div>
     );
