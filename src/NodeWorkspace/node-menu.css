@@ -1,0 +1,50 @@
+.NodeMenu {
+    z-index: 10;
+    position: fixed;
+    /*width: 125px;*/
+    text-align: center;
+    color: #222;
+    border-radius: 4px;
+    border-style: solid;
+    border-width: 1px;
+    box-shadow: 2px 4px 8px 1px rgba(0,0,0,0.7);
+    background: #FFF;
+}
+
+.NodeMenuList {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.NodeMenuList::before {
+    content: '';
+    display: block;
+    height: 1px;
+    background: #000;
+    padding: 0.5px;
+    margin: 2px auto;
+    animation-name: menuAnim;
+    animation-duration: 0.75s;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in;
+}
+
+.NodeMenuItem {
+    margin: 2px;
+    padding: 8px;
+    border-radius: 2px;
+}
+
+.NodeMenuItem:hover {
+    color: #FFF;
+    background: #333;
+    cursor: pointer;
+}
+
+@keyframes menuAnim {
+    0% { width: 0%; }
+    25% { width: 8%; }
+    75% { width: 92%; }
+    100% { width: 100%; }
+}

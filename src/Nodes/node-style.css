@@ -3,6 +3,7 @@
     border-radius: 3px;
     width: 150px;
     font-size: 12px;
+    background: #fff;
     color: #222;
     text-align: center;
     border-width: 1px;
@@ -18,17 +19,12 @@
 .react-flow__handle {
     border-width: 1px;
     border-style: solid;
-    
 }
 
-.react-flow__node-InputNode {
-    background: #fff;
-    border-color: #0041d0;
-    /*color: #0041d0;*/
-}
-
+.react-flow__node-InputNode,
 .react-flow__node-InputNode.selected,
 .react-flow__node-InputNode.selected:hover {
+    border-color: #0041d0;
     --box-shadow-color: #0041d0;
 }
 

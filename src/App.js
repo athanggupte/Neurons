@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import NodeGraph from './NodeGraph';
+import NodeGraph from './NodeWorkspace/NodeGraph';
 
 function App() {
 //     const [currentTime, setCurrentTime] = useState(0);    
@@ -55,12 +55,12 @@ function App() {
     };
     
     return (
-    <div className="App">
+    <div className="App" style={{ display: 'flex', flexFlow: 'column' }}>
         <header className="App-header">
-            <p className="PlainText">{kernelInfo.banner}</p>
+            <span className="PlainText">
+                {kernelInfo.banner ? kernelInfo.banner : 'Not Connected'}
+            </span>
         </header>
-        
-        <p className="PlainText">{execResult}</p>
         
         <NodeGraph />
         

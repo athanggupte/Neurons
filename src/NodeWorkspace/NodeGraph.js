@@ -8,7 +8,9 @@ import ReactFlow,
 } from 'react-flow-renderer';
 
 import { useState, useEffect } from 'react';
-import neuralNodeTypes from './Nodes/NeuralNodeTypes';
+import neuralNodeTypes from './../Nodes/NeuralNodeTypes';
+import NodeMenu from './NodeMenu';
+import NodeMenuItems from './NodeMenuItems';
 
 export default (props) => {
     
@@ -45,8 +47,36 @@ export default (props) => {
         return addEdge(params, els);
     });
     
+    
+    const [menuOpts, setMenuOpts] = useState({ show: false, xpos: 100, ypos: 100 });
+    
+    const onContextmenu = (event) => {
+        event.preventDefault();
+        const xPos = event.pageX;
+        const yPos = event.pageY;
+        
+        // if event.target == ... <- select different menuItems for different elements
+        
+        return setMenuOpts({
+            show: true,
+            xpos: xPos,
+            ypos: yPos,
+            menuItems: NodeMenuItems,
+        });
+    };
+    
+    const onClick = (event) => {
+        return setMenuOpts({
+            show: false,
+        });
+    };
+    
     return (
-        <div style={{ height: window.innerHeight }}>
+        <div style={{ height: '100%' }}
+            id='workspace'
+            onContextMenu={onContextmenu}
+            onClick={onClick}
+        >
             <ReactFlow
                 elements={elements}
                 nodeTypes={neuralNodeTypes}
@@ -55,6 +85,14 @@ export default (props) => {
                 <Background />
                 <Controls />
                 <MiniMap />
+                { menuOpts.show ? 
+                    (<NodeMenu 
+                        xpos={menuOpts.xpos}
+                        ypos={menuOpts.ypos}
+                        menuItems={menuOpts.menuItems}
+                    />)
+                    : (<></>)
+                }
             </ReactFlow>
             <button onClick={addNode} style={{ zIndex: 10, position: 'absolute', top: 100, right: 25 }}>AddNode</button>
         </div>
