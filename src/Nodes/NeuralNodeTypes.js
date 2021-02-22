@@ -1,7 +1,7 @@
-import InputNode from './InputNode';
+import CoreLayers from './CoreLayers';
 
 const neuralNodeTypes = {
-	InputNode: InputNode,
+	Core: CoreLayers,
 };
 
 export default neuralNodeTypes;

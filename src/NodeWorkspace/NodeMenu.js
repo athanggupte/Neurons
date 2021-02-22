@@ -1,46 +1,48 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './node-menu.css';
 
-const NodeMenuList = (props) => {
+const NodeMenuList = React.memo((props) => {
     
+    const [optionsList, setOptionsList] = useState([]);
     const [hoverDelayHandler, setHoverDelayHandler] = useState(null);
+    const [showSubmenu, setShowSubmenu] = useState(Array(props.menuItems.length).fill(false));
     
-    const onMouseEnter = (event) => {
-        console.log('MouseEnter event.target', event.target);
-        console.log('MouseEnter this', this.props);
+    const onMouseEnter = useCallback((event) => {
+        const menuItemIndex = event.target.getAttribute('data-index');
         setHoverDelayHandler(setTimeout(() => {
-            //console.log('Expand submenu of', event.target);
+            const ssm = Array(props.menuItems.length).fill(false);
+            ssm[menuItemIndex] = true;
+            setShowSubmenu(ssm);
         }, 500));
-    };
+    }, [showSubmenu]);
     
     const onMouseLeave = () => {
         clearTimeout(hoverDelayHandler);
     };
     
     const getMenuItems = (menuItem, index) => {
-        console.log(menuItem);
-//         if (menuItem.submenu != null) {
-//             return (
-//                 <li className='NodeMenuItem'>
-//                     {menuItem.title}
-//                     <NodeMenuList menuItems={menuItem.submenu}/>
-//                 </li>
-//             );
-//         }
         if (menuItem.submenu != null) {
             return (
-                <li className='NodeMenuItem'
+                <li className='NodeMenuItem expandable'
                     onMouseEnter={onMouseEnter}
                     onMouseLeave={onMouseLeave}
-                    menuItemIndex={index}
+                    key={index}
+                    data-index={index}
                 >
                     {menuItem.title}
+                    {
+                        showSubmenu[index] ?
+                        (<NodeMenuList menuItems={menuItem.submenu} />) :
+                        (<></>)
+                    }
                 </li>
             );
         } else {
             return (
                 <li className='NodeMenuItem'
-                    menuItemIndex={index}
+                    key={index}
+                    data-index={index}
+                    onClick={menuItem.action}
                 >
                     {menuItem.title}
                 </li>
@@ -48,20 +50,28 @@ const NodeMenuList = (props) => {
         }
     };
     
-    const getMenuList = () => {
+    //useEffect(setShowSubmenu(Array(props.menuItems.length).fill(false)), []);
+    //useEffect(() => {console.log('showSubmenu', showSubmenu)}, [showSubmenu]);
+    
+    useEffect(() => {
+        const options = getMenuList();
+        setOptionsList(options);
+    }, [showSubmenu]);
+    
+    const getMenuList = useCallback(() => {
         const options = [];
         props.menuItems.map((item, index) => {
             options.push(getMenuItems(item, index));
         });
         return options;
-    };
+    }, [props.menuList, showSubmenu]);
     
     return (
         <ul className='NodeMenuList'>
-            {getMenuList()}
+            {optionsList}
         </ul>
     );
-};
+});
 
 const NodeMenu = (props) => {
     console.log(props);

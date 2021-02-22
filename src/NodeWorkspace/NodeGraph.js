@@ -1,16 +1,16 @@
-import ReactFlow, 
-{
+import ReactFlow, {
     Background,
     MiniMap,
     Controls,
     useStoreState,
-    addEdge 
+    addEdge,
 } from 'react-flow-renderer';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import neuralNodeTypes from './../Nodes/NeuralNodeTypes';
 import NodeMenu from './NodeMenu';
-import NodeMenuItems from './NodeMenuItems';
+//import NodeMenuItems from './NodeMenuItems';
+import './workspace.css';
 
 export default (props) => {
     
@@ -19,7 +19,7 @@ export default (props) => {
             id: '1',
             type: 'InputNode',
             position: { x: 100, y: 100 },
-            data: { label: 'Input Neuron' },
+            data: { label: 'Input Node' },
         },
     ]);
 
@@ -28,17 +28,15 @@ export default (props) => {
 //         [elements]
 //     );
     
-    const addNode = () => {
+    const addNode = useCallback((type, position, data) => {
         const newNode = {
-            id: '2',
-            type: 'default',
-            position: { x: 600, y: 300 },
-            data: { label: 'New Node' },
-            targetPosition: 'left',
-            sourcePosition: 'right',
+            id: (elements.length+1).toString(), //nextId.toString(),
+            type: type,
+            position: position,
+            data: data,
         };
         setElements((els) => els.concat(newNode));
-    };
+    }, [elements]);
     
     const onConnect = (params) => setElements((els) => {
         params.arrowHeadType = 'arrow';
@@ -50,10 +48,43 @@ export default (props) => {
     
     const [menuOpts, setMenuOpts] = useState({ show: false, xpos: 100, ypos: 100 });
     
+    const nodeMenuItems = useCallback((position) => {
+        let categoryList = [];
+        for (let [category, categoryNodes] of Object.entries(neuralNodeTypes)) {
+            let nodeList = [];
+            for (let [type, value] of Object.entries(categoryNodes)) {
+                nodeList = nodeList.concat({
+                    title: type,
+                    submenu: null,
+                    action: () => { addNode(type, position, null); },
+                });
+            }
+            categoryList = categoryList.concat({
+                title: category,
+                submenu: nodeList,
+            });
+        }
+        
+        return ({
+            menu: [
+                {
+                    title: 'Clear',
+                    submenu: null,
+                },
+                {
+                    title: 'Add node',
+                    submenu: categoryList,
+                }
+            ]
+        });
+    }, [neuralNodeTypes, elements]);
+    
     const onContextmenu = (event) => {
         event.preventDefault();
         const xPos = event.pageX;
         const yPos = event.pageY;
+        
+        console.log('target class:', event.target.className);
         
         // if event.target == ... <- select different menuItems for different elements
         
@@ -61,7 +92,7 @@ export default (props) => {
             show: true,
             xpos: xPos,
             ypos: yPos,
-            menuItems: NodeMenuItems,
+            menuItems: nodeMenuItems({ x: xPos, y: yPos }),
         });
     };
     
@@ -69,6 +100,14 @@ export default (props) => {
         return setMenuOpts({
             show: false,
         });
+    };
+    
+    const getNodeTypes = (neuralNodeTypes) => {
+        let nodesDict = {};
+        for (let [category, categoryNodes] of Object.entries(neuralNodeTypes)) {
+            nodesDict = Object.assign({}, nodesDict, categoryNodes);
+        }
+        return nodesDict;
     };
     
     return (
@@ -79,7 +118,7 @@ export default (props) => {
         >
             <ReactFlow
                 elements={elements}
-                nodeTypes={neuralNodeTypes}
+                nodeTypes={getNodeTypes(neuralNodeTypes)}
                 onConnect={onConnect}
             >
                 <Background />
@@ -94,7 +133,6 @@ export default (props) => {
                     : (<></>)
                 }
             </ReactFlow>
-            <button onClick={addNode} style={{ zIndex: 10, position: 'absolute', top: 100, right: 25 }}>AddNode</button>
         </div>
     );
 };
