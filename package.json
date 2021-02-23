@@ -17,7 +17,6 @@
   "scripts": {
     "start": "react-scripts start",
     "start-flask": "cd flask-api && venv/bin/flask run -p 5124",
-    "sync-nodes": "cd src/Nodes && python generate_node_files.py",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

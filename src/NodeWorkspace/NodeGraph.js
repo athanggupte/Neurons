@@ -19,18 +19,28 @@ export default (props) => {
             id: '1',
             type: 'InputNode',
             position: { x: 100, y: 100 },
-            data: { label: 'Input Node' },
+            data: null,
         },
     ]);
+    const [elementArgs, setElementArgs] = useState({});
 
 //     useEffect(() => {
 //         }, 
 //         [elements]
 //     );
     
+    useEffect(() => { console.log(elementArgs); }, [elementArgs]);
+    
     const addNode = useCallback((type, position, data) => {
+        const id = (elements.length+1);
+        data.onArgsChange = (newArgs) => {
+            const elArgs = {...elementArgs};
+            elArgs[id] = newArgs;
+            setElementArgs(elArgs);
+        };
+        
         const newNode = {
-            id: (elements.length+1).toString(), //nextId.toString(),
+            id: id.toString(),
             type: type,
             position: position,
             data: data,
@@ -56,7 +66,7 @@ export default (props) => {
                 nodeList = nodeList.concat({
                     title: type,
                     submenu: null,
-                    action: () => { addNode(type, position, null); },
+                    action: () => { addNode(type, position, {}); },
                 });
             }
             categoryList = categoryList.concat({
@@ -96,11 +106,7 @@ export default (props) => {
         });
     };
     
-    const onClick = (event) => {
-        return setMenuOpts({
-            show: false,
-        });
-    };
+    const onClick = (event) => setMenuOpts({ show: false, });
     
     const getNodeTypes = (neuralNodeTypes) => {
         let nodesDict = {};
@@ -109,6 +115,15 @@ export default (props) => {
         }
         return nodesDict;
     };
+    
+    const getState = () => {
+        const state = [...elements];
+        for (let [nodeId, args] of Object.entries(elementArgs)) {
+            state[nodeId-1].args = args;
+            console.log(nodeId, args);
+        }
+        return state;
+    }
     
     return (
         <div style={{ height: '100%' }}
@@ -132,6 +147,7 @@ export default (props) => {
                     />)
                     : (<></>)
                 }
+                <button style={{ zIndex: 10, position: 'absolute', top: 100, right: 50 }} onClick={() => {console.log(getState())}}>Get graph state</button>
             </ReactFlow>
         </div>
     );

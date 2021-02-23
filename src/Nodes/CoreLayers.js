@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useState, useEffect } from 'react';
 import { Handle } from 'react-flow-renderer';
 import Select from 'react-select';
 import './node-style.css'; 
@@ -41,6 +41,14 @@ const OutputNode = props => {
 
 const DenseNode = props => {
     
+    const [args, setArgs] = useState({
+        units: 32,
+    });
+    
+    useEffect(() => {
+        props.data.onArgsChange(args);
+    }, [args]);
+    
     return (
         <div>
             <Handle
@@ -53,7 +61,18 @@ const DenseNode = props => {
                     'Dense Node'
                 }
             </div>
-            <input type='number' style={{ width: '80%', textAlign: 'center' }} placeholder='units' defaultValue={32}/>
+            <input
+                data-id= 'units'
+                type='number'
+                placeholder='units'
+                style={{ width: '80%', textAlign: 'center' }}
+                defaultValue={32}
+                onChange={(event) => {
+                    const ar = {...args};
+                    ar.units = parseInt(event.target.value);
+                    setArgs(ar);
+                }}
+            />
             <Handle
                 type='target'
                 position='left'
@@ -80,10 +99,10 @@ const ActivationNode = props => {
             <div>
                 {(props.data && props.data.label) ? 
                     props.data.label :
-                    'Dense Node'
+                    'Activation Node'
                 }
             </div>
-            <Select options={options} />
+            <Select options={options} onChange={props.data.onChange} />
             <Handle
                 type='target'
                 position='left'
