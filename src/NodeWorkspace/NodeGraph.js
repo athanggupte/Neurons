@@ -1,59 +1,106 @@
 import ReactFlow, {
+    ReactFlowProvider,
     Background,
     MiniMap,
     Controls,
     useStoreState,
     addEdge,
+    useZoomPanHelper,
 } from 'react-flow-renderer';
 
+// import { useZoomPanHelper } from 'react-flow';
+
 import { useState, useEffect, useCallback } from 'react';
-import neuralNodeTypes from './../Nodes/NeuralNodeTypes';
+import neuralNodeTypes, { nodeArgs } from './../Nodes/NeuralNodeTypes';
 import NodeMenu from './NodeMenu';
 //import NodeMenuItems from './NodeMenuItems';
 import './workspace.css';
 
 export default (props) => {
+//     const [reactFlowInstance, setReactFlowInstance] = useState(null);
+    const { project } = useZoomPanHelper();
     
-    const [elements, setElements] = useState([
-        {
-            id: '1',
-            type: 'InputNode',
-            position: { x: 100, y: 100 },
-            data: null,
-        },
-    ]);
+    const [elements, setElements] = useState([]);
     const [elementArgs, setElementArgs] = useState({});
-
+    const [elemIndex, setElemIndex] = useState({});
+    
 //     useEffect(() => {
 //         }, 
 //         [elements]
 //     );
     
-    useEffect(() => { console.log(elementArgs); }, [elementArgs]);
+//     useEffect(() => { console.log('reactFlowInstance:', reactFlowInstance); }, [reactFlowInstance]);
+//     useEffect(() => { console.log('elementArgs:', elementArgs); }, [elementArgs]);
     
-    const addNode = useCallback((type, position, data) => {
-        const id = (elements.length+1);
+    const addNodeToElements = useCallback((id, type, position, data) => {
         data.onArgsChange = (newArgs) => {
             const elArgs = {...elementArgs};
             elArgs[id] = newArgs;
             setElementArgs(elArgs);
+            console.log(newArgs);
         };
+        
+//         console.log('reactFlowInstance:', reactFlowInstance);
         
         const newNode = {
             id: id.toString(),
             type: type,
-            position: position,
+            //position: reactFlowInstance.project(position),
+            position: project(position),
             data: data,
         };
+        
+        let eIdx = {...elemIndex};
+        eIdx[id] = elements.length;
+        setElemIndex(eIdx);
+        
         setElements((els) => els.concat(newNode));
-    }, [elements]);
+    }, [elements, /*reactFlowInstance*/]);
     
-    const onConnect = (params) => setElements((els) => {
-        params.arrowHeadType = 'arrow';
-        params.type = 'smoothstep';
-        //params.animated = true;
-        return addEdge(params, els);
-    });
+    
+    const addNode = useCallback((type, position, data) => {
+        fetch('/nn/addnode', {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            method: 'POST',
+            body: JSON.stringify({
+                type: type,
+                args: nodeArgs[type],
+            }),
+        }).then(res => res.json()).then(data => {
+            addNodeToElements(data.id, type, position, data);
+        });
+    }, [addNodeToElements, /*reactFlowInstance*/]);
+    
+    
+    const onConnect = (params) => {
+        fetch('/nn/addedge', {
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            method: 'POST',
+            body: JSON.stringify({
+                edgeNodes: {
+                    sourceId: params.source,
+                    targetId: params.target,
+                }
+            }),
+        }).then(() => {
+        
+//             console.log(params);
+            
+            setElements((els) => {
+                params.arrowHeadType = 'arrow';
+                params.type = 'smoothstep';
+                
+                //params.animated = true;
+                return addEdge(params, els);
+            });
+        });
+    };
     
     
     const [menuOpts, setMenuOpts] = useState({ show: false, xpos: 100, ypos: 100 });
@@ -108,22 +155,25 @@ export default (props) => {
     
     const onClick = (event) => setMenuOpts({ show: false, });
     
-    const getNodeTypes = (neuralNodeTypes) => {
+    const getNodeTypes = useCallback((neuralNodeTypes) => {
         let nodesDict = {};
         for (let [category, categoryNodes] of Object.entries(neuralNodeTypes)) {
             nodesDict = Object.assign({}, nodesDict, categoryNodes);
+            // for (let [typeName, value] of Object.entries(categoryNodes)) {
+            //     nodesDict[typeName] = value.ctr;
+            // }
         }
+        // console.log("nodesDict", nodesDict);
         return nodesDict;
-    };
+    }, []);
     
-    const getState = () => {
+    const getState = useCallback(() => {
         const state = [...elements];
         for (let [nodeId, args] of Object.entries(elementArgs)) {
-            state[nodeId-1].args = args;
-            console.log(nodeId, args);
+            state[elemIndex[nodeId]].args = args;
         }
         return state;
-    }
+    }, [elements, elementArgs, elemIndex]);
     
     return (
         <div style={{ height: '100%' }}
@@ -133,6 +183,7 @@ export default (props) => {
         >
             <ReactFlow
                 elements={elements}
+                //onLoad={(instance) => setReactFlowInstance(instance)}
                 nodeTypes={getNodeTypes(neuralNodeTypes)}
                 onConnect={onConnect}
             >

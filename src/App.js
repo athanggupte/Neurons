@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ReactFlowProvider } from 'react-flow-renderer';
 import logo from './logo.svg';
 import './App.css';
 import NodeGraph from './NodeWorkspace/NodeGraph';
@@ -14,55 +15,66 @@ function App() {
 //             // and thus will not be called everytime there is a change
 //             // to some state variable
 //     );
+
+    
+//     const [kernelInfo, setKernelInfo] = useState({})
+//     useEffect(() => {
+//             fetch('/ipyclient/connect').then(res => res.json()).then(data => {
+//                 setKernelInfo(data);
+//             });
+//         },
+//         []
+//     );
     
     
-    const [kernelInfo, setKernelInfo] = useState({})
     useEffect(() => {
-            fetch('/ipyclient/connect').then(res => res.json()).then(data => {
-                setKernelInfo(data);
-            });
-        },
-        []
-    );
+        fetch('/nn/reset');
+    }, []);
     
     const [expr, setExpr] = useState('')
     const handleInput = event => {
         setExpr(event.target.value);
     };
         
-    const [execResult, setExecResult] = useState('')
-    const executeStatement = () => {
-        fetch('/ipyclient/result', {
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            }, 
-            method: 'POST',
-            body: JSON.stringify({
-                'expr': expr
-            })
-        }).then(res => res.json())
-        .then(data => {
-            //console.log(data)
-            if (data.shell.content.status == 'ok') {
-                if (data.res.execute_result) {
-                    setExecResult(data.res.execute_result.data['text/plain'])
-                }
-            } else if (data.res.status == 'error') {
-                // Handle error
-            }
-        });
-    };
+//     const [execResult, setExecResult] = useState('')
+//     const executeStatement = () => {
+//         fetch('/ipyclient/result', {
+//             headers: {
+//                 'Accept': 'application/json',
+//                 'Content-Type': 'application/json'
+//             }, 
+//             method: 'POST',
+//             body: JSON.stringify({
+//                 'expr': expr
+//             }),
+//         }).then(res => res.json())
+//         .then(data => {
+//             // console.log(data)
+//             if (data.shell.content.status == 'ok') {
+//                 if (data.res.execute_result) {
+//                     setExecResult(data.res.execute_result.data['text/plain'])
+//                 }
+//             } else if (data.res.status == 'error') {
+//                 // Handle error
+//             }
+//         });
+//     };
     
     return (
     <div className="App" style={{ display: 'flex', flexFlow: 'column' }}>
         <header className="App-header">
-            <span className="PlainText">
-                {kernelInfo.banner ? kernelInfo.banner : 'Not Connected'}
+            <span className="Banner PlainText">
+                {/*kernelInfo.banner ?
+                    (<> Connected <div className="Banner tooltip">{kernelInfo.banner}</div> </>) :
+                    'Not Connected'
+                */}
+                Neurons
             </span>
         </header>
         
-        <NodeGraph />
+        <ReactFlowProvider>
+            <NodeGraph />
+        </ReactFlowProvider>
         
     </div>
     );

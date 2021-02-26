@@ -5,3 +5,4 @@ const neuralNodeTypes = {
 };
 
 export default neuralNodeTypes;
+export { defaultArgs as nodeArgs } from './CoreLayers';

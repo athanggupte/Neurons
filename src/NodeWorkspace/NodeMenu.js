@@ -74,7 +74,7 @@ const NodeMenuList = React.memo((props) => {
 });
 
 const NodeMenu = (props) => {
-    console.log(props);
+//     console.log(props);
     
     return (
         <div className='NodeMenu'

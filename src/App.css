@@ -51,3 +51,16 @@ body {
 .PlainText {
     white-space: pre-line;
 }
+
+.Banner.tooltip {
+    z-index: 12;
+    position: absolute;
+    margin-top: 10px;
+    visibility: hidden;
+    font-size: 14px;
+    background: #0008;
+}
+
+.Banner:hover > .tooltip {
+    visibility: visible;
+}

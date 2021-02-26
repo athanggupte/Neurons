@@ -5,6 +5,18 @@ import './node-style.css';
 
 const InputNode = props => {
     
+    const [args, setArgs] = useState({
+        shape: [],
+    });
+    
+    useEffect(() => {
+        props.data.onArgsChange(args);
+    }, []);
+    
+    useEffect(() => {
+        props.data.onArgsChange(args);
+    }, [args]);
+    
     return (
         <div>
             <Handle
@@ -17,6 +29,15 @@ const InputNode = props => {
                     'Input Node'
                 }
             </div>
+            <input
+                data-id='shape'
+                type='text'
+                placeholder='shape'
+                onChange={(event) => {
+                    const ar = {...args};
+                    ar.shape = event.target.value.split(',').forEach((els) => parseInt(els));
+                }}
+            />            
         </div>
     );
 };
@@ -44,6 +65,10 @@ const DenseNode = props => {
     const [args, setArgs] = useState({
         units: 32,
     });
+    
+    useEffect(() => {
+        props.data.onArgsChange(args);
+    }, []);
     
     useEffect(() => {
         props.data.onArgsChange(args);
@@ -90,6 +115,18 @@ const ActivationNode = props => {
         { value: 'elu', label: 'ELU' },
     ];
     
+    const [args, setArgs] = useState({
+        activation: options[0].value,
+    });
+    
+    useEffect(() => {
+        props.data.onArgsChange(args);
+    }, []);
+    
+    useEffect(() => {
+        props.data.onArgsChange(args);
+    }, [args]);
+    
     return (
         <div>
             <Handle
@@ -102,7 +139,17 @@ const ActivationNode = props => {
                     'Activation Node'
                 }
             </div>
-            <Select options={options} onChange={props.data.onChange} />
+            <Select
+                data-id= 'activation'
+                options={options}
+                defaultValue={options[0]}
+                onChange={ (selectedOption) => {
+                    const ar = {...args};
+                    ar.activation = selectedOption.value;
+                    setArgs(ar);
+                }}
+                isClearable={false}
+            />
             <Handle
                 type='target'
                 position='left'
@@ -117,3 +164,12 @@ export default {
     DenseNode: DenseNode,
     ActivationNode: ActivationNode,
 };
+
+const defaultArgs = {
+    InputNode: { shape: [16,1] },
+    OutputNode: {},
+    DenseNode: { units: 32, activation: null },
+    ActivationNode: { activation: 'relu' },
+};
+
+export { defaultArgs };

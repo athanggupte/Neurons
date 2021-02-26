@@ -101,9 +101,12 @@ class IPythonConnection(object):
         return result
     
     def shell_loop(self):
-        msg = self.client.get_shell_msg(timeout = 2)
-        msg['parent_id'] = msg['parent_header']['msg_id']
-        msg.pop('header')
-        msg.pop('buffers')
-        msg.pop('parent_header')
+        try:
+            msg = self.client.get_shell_msg(timeout = 2)
+            msg['parent_id'] = msg['parent_header']['msg_id']
+            msg.pop('header')
+            msg.pop('buffers')
+            msg.pop('parent_header')
+        except Empty:
+            return None
         return msg
