@@ -15,6 +15,7 @@
     "web-vitals": "^1.1.0"
   },
   "scripts": {
+    "init-flask": "cd flask-api && python -m venv venv && venv/bin/pip install requirements.txt",
     "start": "react-scripts start",
     "start-flask": "cd flask-api && venv/bin/flask run -p 5124",
     "build": "react-scripts build",
